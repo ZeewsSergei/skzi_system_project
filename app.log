@@ -1,0 +1,183 @@
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+НЕПЕРЕХВАЧЕННОЕ ИСКЛЮЧЕНИЕ: Traceback (most recent call last):
+  File "F:\PycharmProjects\skzi_system\widgets\training_tab.py", line 66, in open_training_dialog
+    dlg = TrainingDialog(self.user, self)
+  File "F:\PycharmProjects\skzi_system\forms\training_dialog.py", line 22, in __init__
+    self.load_employees()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "F:\PycharmProjects\skzi_system\forms\training_dialog.py", line 64, in load_employees
+    emps = self.emp_service.get_all_employees()
+  File "F:\PycharmProjects\skzi_system\services\employee_service.py", line 11, in get_all_employees
+    return self.repo.get_all()
+           ~~~~~~~~~~~~~~~~~^^
+  File "F:\PycharmProjects\skzi_system\repositories\employee_repository.py", line 8, in get_all
+    cursor = self.db.execute_query("""
+        SELECT e.id, e.fio, e.position, e.sector_id, e.department_id,
+    ...<5 lines>...
+        ORDER BY e.fio
+    """)
+  File "F:\PycharmProjects\skzi_system\db\db_manager.py", line 40, in execute_query
+    cursor.execute(query, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: e.sector_id
+
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
+=== Запуск приложения ===
+App root: F:\PycharmProjects\skzi_system
+DB path: F:\PycharmProjects\skzi_system\database\skzi_registry.db
+Вызов create_database()...
+create_database() завершён
+База данных успешно инициализирована или уже существует.
+Таблица users существует.
