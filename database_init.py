@@ -1,16 +1,21 @@
 import sqlite3
 import os
+import hashlib
+import secrets
 from utils.path_helper import get_db_path
+
+def hash_password(password):
+    salt = secrets.token_hex(16)
+    key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000).hex()
+    return f"{salt}:{key}"
 
 def create_database():
     db_path = get_db_path()
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
     conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     cursor.execute("PRAGMA foreign_keys = ON;")
-
 
     # Справочные таблицы
     cursor.executescript("""
@@ -96,14 +101,8 @@ def create_database():
             arm_type_id INTEGER,
             cabinet_number TEXT,
             install_address_id INTEGER,
-            os_version_id INTEGER,
-            antivirus_id INTEGER,
-            szi_nsd_id INTEGER,
             FOREIGN KEY (arm_type_id) REFERENCES arm_types(id) ON DELETE SET NULL,
-            FOREIGN KEY (install_address_id) REFERENCES addresses(id) ON DELETE SET NULL,
-            FOREIGN KEY (os_version_id) REFERENCES os_versions(id) ON DELETE SET NULL,
-            FOREIGN KEY (antivirus_id) REFERENCES antiviruses(id) ON DELETE SET NULL,
-            FOREIGN KEY (szi_nsd_id) REFERENCES szi_nsd_names(id) ON DELETE SET NULL
+            FOREIGN KEY (install_address_id) REFERENCES addresses(id) ON DELETE SET NULL
         );
 
         -- Основная таблица реестра СКЗИ (общая)
@@ -114,7 +113,6 @@ def create_database():
             skzi_name_id INTEGER,
             skzi_number TEXT UNIQUE,
             skzi_instance_number TEXT,
-            skzi_account TEXT,
             media_type_id INTEGER,
             media_number TEXT,
             cert_number TEXT UNIQUE,
@@ -155,7 +153,7 @@ def create_database():
             FOREIGN KEY (arm_id) REFERENCES arm(id),
             FOREIGN KEY (skzi_name_id) REFERENCES skzi_names(id) ON DELETE SET NULL,
             FOREIGN KEY (received_from_id) REFERENCES received_from(id) ON DELETE SET NULL,
-            UNIQUE(arm_id, status)
+            UNIQUE(arm_id, status)  -- на одном АРМ может быть только одна активная запись ViPNet
         );
 
         -- Таблица для СЗИ от НСД (отдельная)
@@ -173,16 +171,15 @@ def create_database():
             FOREIGN KEY (employee_id) REFERENCES employees(id),
             FOREIGN KEY (arm_id) REFERENCES arm(id),
             FOREIGN KEY (szi_nsd_id) REFERENCES szi_nsd_names(id) ON DELETE SET NULL,
-            UNIQUE(arm_id, status)
+            UNIQUE(arm_id, status)  -- на одном АРМ может быть только одна активная запись СЗИ от НСД
         );
 
-        -- Таблица пользователей (добавлено поле must_change_password)
+        -- Таблица пользователей
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
-            role TEXT DEFAULT 'OPERATOR',
-            must_change_password INTEGER DEFAULT 0
+            role TEXT DEFAULT 'OPERATOR'
         );
 
         -- Таблица обучения
@@ -209,7 +206,7 @@ def create_database():
             changed_fields TEXT
         );
 
-        -- Таблица контрольных проверок
+        -- Таблица контрольных проверок (не используется, но оставим)
         CREATE TABLE IF NOT EXISTS control_checks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             skzi_registry_id INTEGER NOT NULL,
@@ -223,28 +220,33 @@ def create_database():
 
     # Начальные данные для справочников
     cursor.executescript("""
-            INSERT OR IGNORE INTO departments (name) VALUES ('Бухгалтерия'), ('IT-отдел'), ('Юридический отдел');
-            INSERT OR IGNORE INTO sectors (name, department_id) VALUES 
-                ('Сектор разработки', (SELECT id FROM departments WHERE name='IT-отдел')),
-                ('Сектор сопровождения', (SELECT id FROM departments WHERE name='IT-отдел')),
-                ('Сектор расчётов', (SELECT id FROM departments WHERE name='Бухгалтерия'));
-            INSERT OR IGNORE INTO skzi_names (name) VALUES ('КриптоПро CSP 5.0 R3'), ('ViPNet Client 4');
-            INSERT OR IGNORE INTO media_types (name) VALUES ('Рутокен'), ('eToken'), ('Esmart'), ('JaCarta');
-            INSERT OR IGNORE INTO received_from (name) VALUES ('УФК'), ('СПб ИАЦ');
-            INSERT OR IGNORE INTO arm_types (name) VALUES ('Системный блок'), ('Ноутбук'), ('Планшет'), ('Тонкий клиент'), ('Сервер');
-            INSERT OR IGNORE INTO os_versions (name) VALUES ('Windows 10'), ('Альт Linux'), ('Astra Linux');
-            INSERT OR IGNORE INTO antiviruses (name) VALUES ('Kaspersky Endpoint Security'), ('Dr.Web');
-            INSERT OR IGNORE INTO szi_nsd_names (name) VALUES ('Dallas Lock'), ('Secret Net');
-            INSERT OR IGNORE INTO addresses (name) VALUES 
-                ('Невский пр., д. 176, литера А'),
-                ('Невский пр., д. 174, литера А'),
-                ('Невский пр., д. 174, литера Б');
-        """)
+        INSERT OR IGNORE INTO departments (name) VALUES ('Бухгалтерия'), ('IT-отдел'), ('Юридический отдел');
+        INSERT OR IGNORE INTO sectors (name, department_id) VALUES 
+            ('Сектор разработки', (SELECT id FROM departments WHERE name='IT-отдел')),
+            ('Сектор сопровождения', (SELECT id FROM departments WHERE name='IT-отдел')),
+            ('Сектор расчётов', (SELECT id FROM departments WHERE name='Бухгалтерия'));
+
+        INSERT OR IGNORE INTO skzi_names (name) VALUES ('КриптоПро CSP 5.0 R3'), ('ViPNet Client 4');
+        INSERT OR IGNORE INTO media_types (name) VALUES ('Рутокен'), ('eToken'), ('Esmart'), ('JaCarta');
+        INSERT OR IGNORE INTO received_from (name) VALUES ('УФК'), ('СПб ИАЦ');
+        INSERT OR IGNORE INTO arm_types (name) VALUES ('Системный блок'), ('Ноутбук'), ('Планшет'), ('Тонкий клиент'), ('Сервер');
+        INSERT OR IGNORE INTO os_versions (name) VALUES ('Windows 10'), ('Альт Linux'), ('Astra Linux');
+        INSERT OR IGNORE INTO antiviruses (name) VALUES ('Kaspersky Endpoint Security'), ('Dr.Web');
+        INSERT OR IGNORE INTO szi_nsd_names (name) VALUES ('Dallas Lock'), ('Secret Net');
+        INSERT OR IGNORE INTO addresses (name) VALUES 
+            ('Невский пр., д. 176, литера А'),
+            ('Невский пр., д. 174, литера А'),
+            ('Невский пр., д. 174, литера Б');
+    """)
+
+    # Пользователь admin
+    admin_hash = hash_password("admin123")
+    cursor.execute("INSERT OR IGNORE INTO users (username, password_hash, role) VALUES (?, ?, ?)",
+                   ("admin", admin_hash, "ADMIN"))
 
     conn.commit()
     conn.close()
-    print(f"База данных инициализирована: {db_path}")
-
+    print(f"База данных успешно инициализирована по пути: {db_path}")
 
 if __name__ == "__main__":
     create_database()

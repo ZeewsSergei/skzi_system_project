@@ -27,7 +27,6 @@ for f in os.listdir('.'):
 datas.extend(python_files)
 
 # Добавляем папки с модулями
-for folder in ['core', 'db', 'forms', 'repositories', 'services', 'signals', 'utils', 'widgets', 'security']:
     if os.path.exists(folder):
         datas.append((folder, folder))
 
@@ -59,8 +58,6 @@ hiddenimports = [
     'services.department_service',
     'services.sector_service',
     'repositories.base_repository',
-    'core.enums',
-    'utils.date_utils',
     'repositories.audit_repository',
     'repositories.control_repository',
     'repositories.department_repository',

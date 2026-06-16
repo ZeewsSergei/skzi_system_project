@@ -1,22 +1,19 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QPushButton, QLineEdit
-
-from repositories.training_repository import get_all_trainings
+from PyQt6.QtWidgets import *
 from services.training_service import TrainingService
-from signals.app_signals import app_signals
 from forms.training_dialog import TrainingDialog
+from signals.app_signals import app_signals
 
 class TrainingTab(QWidget):
     def __init__(self, user, main_window):
         super().__init__()
-        self.table = None
         self.btn_add = None
+        self.table = None
         self.search = None
         self.user = user
         self.main = main_window
         self.service = TrainingService()
         self.init_ui()
         self.refresh()
-        # Подключаемся к сигналу
         app_signals.training_changed.connect(self.refresh)
 
     def init_ui(self):
@@ -26,8 +23,8 @@ class TrainingTab(QWidget):
         self.search.textChanged.connect(self.filter_table)
         layout.addWidget(self.search)
 
-        self.table = QTableWidget(0, 5)
-        self.table.setHorizontalHeaderLabels(["ID", "Сотрудник", "Дата", "Результат", "Должность"])
+        self.table = QTableWidget(0, 6)
+        self.table.setHorizontalHeaderLabels(["ID", "Сотрудник", "Должность", "Отдел", "Дата", "Результат"])
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table.setSortingEnabled(True)
         layout.addWidget(self.table)
@@ -38,13 +35,21 @@ class TrainingTab(QWidget):
         layout.addWidget(self.btn_add)
 
     def refresh(self):
-        rows = get_all_trainings()
+        rows = self.service.get_all_trainings()
+        self.table.setSortingEnabled(False)
         self.table.setRowCount(0)
         for i, row in enumerate(rows):
             self.table.insertRow(i)
-            for j, val in enumerate(row):
-                self.table.setItem(i, j, QTableWidgetItem(str(val) if val else ""))
-        self.filter_table()  # применить текущий поиск
+            self.table.setItem(i, 0, QTableWidgetItem(str(row['id'])))
+            self.table.setItem(i, 1, QTableWidgetItem(row['fio']))
+            self.table.setItem(i, 2, QTableWidgetItem(row['position'] or ""))
+            self.table.setItem(i, 3, QTableWidgetItem(row['department'] or ""))
+            self.table.setItem(i, 4, QTableWidgetItem(row['training_date']))
+            self.table.setItem(i, 5, QTableWidgetItem(row['result']))
+        self.table.setSortingEnabled(True)
+        self.search.clear()
+        self.filter_table()
+        self.table.viewport().update()
 
     def filter_table(self):
         text = self.search.text().lower()
@@ -60,5 +65,4 @@ class TrainingTab(QWidget):
     def open_training_dialog(self):
         dlg = TrainingDialog(self.user, self)
         if dlg.exec():
-            # Данные уже обновятся через сигнал
-            pass
+            print("Диалог обучения завершён, данные обновятся по сигналу")
