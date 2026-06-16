@@ -1,0 +1,135 @@
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.s1 { color: #bcbec4;}
+.s2 { color: #56a8f5;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#191a1c">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+README.md</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">Учет СКЗИ</span>
+<a name="l2"><span class="ln">2    </span></a><span class="s0">Автоматизированная система учета средств криптографической защиты информации </span><span class="s1">(</span><span class="s0">СКЗИ</span><span class="s1">) </span><span class="s0">с модулями контроля выдачи, уничтожения, обучения и аудита.</span>
+<a name="l3"><span class="ln">3    </span></a>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">🚀 Возможности</span>
+<a name="l5"><span class="ln">5    </span></a><span class="s0">Регистрация и учёт СКЗИ – привязка к сотрудникам, АРМ, носителям ключевой информации.</span>
+<a name="l6"><span class="ln">6    </span></a>
+<a name="l7"><span class="ln">7    </span></a><span class="s0">Ведение справочников – отделы, секторы, сотрудники, наименования СКЗИ, типы носителей, версии ОС, антивирусы, СЗИ от НСД, адреса установки.</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a><span class="s0">Отдельные модули – ViPNet Client, СЗИ от НСД.</span>
+<a name="l10"><span class="ln">10   </span></a>
+<a name="l11"><span class="ln">11   </span></a><span class="s0">Обучение сотрудников – фиксация результатов проверки знаний.</span>
+<a name="l12"><span class="ln">12   </span></a>
+<a name="l13"><span class="ln">13   </span></a><span class="s0">Уничтожение СКЗИ – одиночное и массовое списание с указанием акта.</span>
+<a name="l14"><span class="ln">14   </span></a>
+<a name="l15"><span class="ln">15   </span></a><span class="s0">Расширенный фильтр – поиск по нескольким полям и диапазонам дат.</span>
+<a name="l16"><span class="ln">16   </span></a>
+<a name="l17"><span class="ln">17   </span></a><span class="s0">Аудит действий – логирование всех изменений </span><span class="s1">(</span><span class="s0">было/стало</span><span class="s1">)</span><span class="s0">.</span>
+<a name="l18"><span class="ln">18   </span></a>
+<a name="l19"><span class="ln">19   </span></a><span class="s0">Экспорт отчётов – акты установки/уничтожения, ведомость обучения, полный экспорт данных.</span>
+<a name="l20"><span class="ln">20   </span></a>
+<a name="l21"><span class="ln">21   </span></a><span class="s0">Импорт справочников – из Excel-файлов.</span>
+<a name="l22"><span class="ln">22   </span></a>
+<a name="l23"><span class="ln">23   </span></a><span class="s0">Резервное копирование – с возможностью шифрования паролем.</span>
+<a name="l24"><span class="ln">24   </span></a>
+<a name="l25"><span class="ln">25   </span></a><span class="s0">Системный трей – свёртывание в фоновый режим.</span>
+<a name="l26"><span class="ln">26   </span></a>
+<a name="l27"><span class="ln">27   </span></a><span class="s0">📋 Требования</span>
+<a name="l28"><span class="ln">28   </span></a><span class="s0">Операционная система</span><span class="s1">: </span><span class="s0">Windows 10/11</span>
+<a name="l29"><span class="ln">29   </span></a>
+<a name="l30"><span class="ln">30   </span></a><span class="s0">Python 3.10 или выше</span>
+<a name="l31"><span class="ln">31   </span></a>
+<a name="l32"><span class="ln">32   </span></a><span class="s0">Библиотеки </span><span class="s1">(</span><span class="s0">указаны в requirements.txt</span><span class="s1">):</span>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a><span class="s0">PyQt6</span>
+<a name="l35"><span class="ln">35   </span></a>
+<a name="l36"><span class="ln">36   </span></a><span class="s0">pandas</span>
+<a name="l37"><span class="ln">37   </span></a>
+<a name="l38"><span class="ln">38   </span></a><span class="s0">openpyxl</span>
+<a name="l39"><span class="ln">39   </span></a>
+<a name="l40"><span class="ln">40   </span></a><span class="s0">pyinstaller </span><span class="s1">(</span><span class="s0">опционально, для сборки exe</span><span class="s1">)</span>
+<a name="l41"><span class="ln">41   </span></a>
+<a name="l42"><span class="ln">42   </span></a><span class="s0">⚙️ Установка и запуск</span>
+<a name="l43"><span class="ln">43   </span></a><span class="s0">Клонировать репозиторий</span><span class="s1">:</span>
+<a name="l44"><span class="ln">44   </span></a>
+<a name="l45"><span class="ln">45   </span></a><span class="s0">bash</span>
+<a name="l46"><span class="ln">46   </span></a><span class="s0">git clone </span><span class="s2">https://github.com/ваш-аккаунт/skzi_system.git</span>
+<a name="l47"><span class="ln">47   </span></a><span class="s0">cd skzi_system</span>
+<a name="l48"><span class="ln">48   </span></a><span class="s0">Создать виртуальное окружение </span><span class="s1">(</span><span class="s0">рекомендуется</span><span class="s1">):</span>
+<a name="l49"><span class="ln">49   </span></a>
+<a name="l50"><span class="ln">50   </span></a><span class="s0">bash</span>
+<a name="l51"><span class="ln">51   </span></a><span class="s0">python -m venv .venv</span>
+<a name="l52"><span class="ln">52   </span></a><span class="s0">.venv\Scripts\activate   # Windows</span>
+<a name="l53"><span class="ln">53   </span></a><span class="s0">Установить зависимости</span><span class="s1">:</span>
+<a name="l54"><span class="ln">54   </span></a>
+<a name="l55"><span class="ln">55   </span></a><span class="s0">bash</span>
+<a name="l56"><span class="ln">56   </span></a><span class="s0">pip install -r requirements.txt</span>
+<a name="l57"><span class="ln">57   </span></a><span class="s0">Запустить приложение</span><span class="s1">:</span>
+<a name="l58"><span class="ln">58   </span></a>
+<a name="l59"><span class="ln">59   </span></a><span class="s0">bash</span>
+<a name="l60"><span class="ln">60   </span></a><span class="s0">python main.py</span>
+<a name="l61"><span class="ln">61   </span></a><span class="s0">При первом запуске автоматически создаётся база данных SQLite в папке database/.</span>
+<a name="l62"><span class="ln">62   </span></a><span class="s0">Учётная запись администратора</span><span class="s1">: </span><span class="s0">admin / admin123.</span>
+<a name="l63"><span class="ln">63   </span></a>
+<a name="l64"><span class="ln">64   </span></a><span class="s0">🛠️ Сборка исполняемого файла</span>
+<a name="l65"><span class="ln">65   </span></a><span class="s0">Используйте PyInstaller</span><span class="s1">:</span>
+<a name="l66"><span class="ln">66   </span></a>
+<a name="l67"><span class="ln">67   </span></a><span class="s0">bash</span>
+<a name="l68"><span class="ln">68   </span></a><span class="s0">pyinstaller --onefile --windowed --icon=resources/app_icon.ico --name=</span><span class="s1">&quot;</span><span class="s0">Учет СКЗИ</span><span class="s1">&quot; </span><span class="s0">main.py</span>
+<a name="l69"><span class="ln">69   </span></a><span class="s0">📁 Структура проекта</span>
+<a name="l70"><span class="ln">70   </span></a><span class="s0">text</span>
+<a name="l71"><span class="ln">71   </span></a><span class="s0">skzi_system/</span>
+<a name="l72"><span class="ln">72   </span></a><span class="s0">├── db/                 # Модули работы с базой данных </span><span class="s1">(</span><span class="s0">репозитории</span><span class="s1">)</span>
+<a name="l73"><span class="ln">73   </span></a><span class="s0">├── forms/              # Диалоговые окна </span><span class="s1">(</span><span class="s0">регистрация, редактирование</span><span class="s1">)</span>
+<a name="l74"><span class="ln">74   </span></a><span class="s0">├── repositories/       # Репозитории для доступа к данным</span>
+<a name="l75"><span class="ln">75   </span></a><span class="s0">├── services/           # Бизнес-логика</span>
+<a name="l76"><span class="ln">76   </span></a><span class="s0">├── signals/            # Сигналы для обновления интерфейса</span>
+<a name="l77"><span class="ln">77   </span></a><span class="s0">├── utils/              # Вспомогательные функции </span><span class="s1">(</span><span class="s0">экспорт, резервное копирование</span><span class="s1">)</span>
+<a name="l78"><span class="ln">78   </span></a><span class="s0">├── widgets/            # Пользовательские виджеты </span><span class="s1">(</span><span class="s0">вкладки</span><span class="s1">)</span>
+<a name="l79"><span class="ln">79   </span></a><span class="s0">├── resources/          # Иконки, стили</span>
+<a name="l80"><span class="ln">80   </span></a><span class="s0">├── database/           # Папка с БД </span><span class="s1">(</span><span class="s0">создаётся автоматически</span><span class="s1">)</span>
+<a name="l81"><span class="ln">81   </span></a><span class="s0">├── main.py             # Точка входа</span>
+<a name="l82"><span class="ln">82   </span></a><span class="s0">├── login_window.py     # Окно авторизации</span>
+<a name="l83"><span class="ln">83   </span></a><span class="s0">├── database_init.py    # Скрипт инициализации БД</span>
+<a name="l84"><span class="ln">84   </span></a><span class="s0">├── requirements.txt    # Зависимости</span>
+<a name="l85"><span class="ln">85   </span></a><span class="s0">└── README.md           # Описание проекта</span>
+<a name="l86"><span class="ln">86   </span></a><span class="s0">🧪 Тестирование</span>
+<a name="l87"><span class="ln">87   </span></a><span class="s0">Для проверки работоспособности после изменений рекомендуется</span><span class="s1">:</span>
+<a name="l88"><span class="ln">88   </span></a>
+<a name="l89"><span class="ln">89   </span></a><span class="s0">Запустить приложение и выполнить основные операции.</span>
+<a name="l90"><span class="ln">90   </span></a>
+<a name="l91"><span class="ln">91   </span></a><span class="s0">Проверить журнал аудита.</span>
+<a name="l92"><span class="ln">92   </span></a>
+<a name="l93"><span class="ln">93   </span></a><span class="s0">Убедиться, что фильтры и экспорт работают корректно.</span>
+<a name="l94"><span class="ln">94   </span></a>
+<a name="l95"><span class="ln">95   </span></a><span class="s0">🤝 Вклад в проект</span>
+<a name="l96"><span class="ln">96   </span></a><span class="s0">Если вы нашли ошибку или хотите добавить новую функцию</span><span class="s1">:</span>
+<a name="l97"><span class="ln">97   </span></a>
+<a name="l98"><span class="ln">98   </span></a><span class="s0">Создайте форк репозитория.</span>
+<a name="l99"><span class="ln">99   </span></a>
+<a name="l100"><span class="ln">100  </span></a><span class="s0">Создайте ветку с вашим исправлением </span><span class="s1">(</span><span class="s0">git checkout -b fix/your-bug</span><span class="s1">)</span><span class="s0">.</span>
+<a name="l101"><span class="ln">101  </span></a>
+<a name="l102"><span class="ln">102  </span></a><span class="s0">Сделайте коммит изменений.</span>
+<a name="l103"><span class="ln">103  </span></a>
+<a name="l104"><span class="ln">104  </span></a><span class="s0">Отправьте пулл-реквест.</span>
+<a name="l105"><span class="ln">105  </span></a>
+<a name="l106"><span class="ln">106  </span></a><span class="s0">📄 Лицензия</span>
+<a name="l107"><span class="ln">107  </span></a><span class="s0">Проект распространяется под лицензией MIT. Подробнее см. в файле LICENSE.</span>
+<a name="l108"><span class="ln">108  </span></a>
+<a name="l109"><span class="ln">109  </span></a><span class="s0">👨‍💻 Контакты</span>
+<a name="l110"><span class="ln">110  </span></a><span class="s0">Разработчик</span><span class="s1">: </span><span class="s0">Колесов С.А.</span>
+<a name="l111"><span class="ln">111  </span></a><span class="s0">Email</span><span class="s1">: </span><span class="s0">foxxes76@yandex,ru</span>
+<a name="l112"><span class="ln">112  </span></a><span class="s0">GitHub</span><span class="s1">: </span><span class="s0">ZeewsSergei</span>
+<a name="l113"><span class="ln">113  </span></a>
+<a name="l114"><span class="ln">114  </span></a><span class="s0">© 2026 Учет СКЗИ. Все права защищены.</span>
+<a name="l115"><span class="ln">115  </span></a>
+<a name="l116"><span class="ln">116  </span></a></pre>
+</body>
+</html>
