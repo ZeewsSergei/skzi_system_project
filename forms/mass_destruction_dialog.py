@@ -33,7 +33,7 @@ class MassDestructionDialog(QDialog):
 
     def get_data(self):
         return {
-            'date': self.date_edit.date().toString("dd.MM.yyyy"),
+            'date': self.date_edit.date().toString("yyyy-MM-dd"),
             'act': self.act_num.text().strip(),
             'withdrawer': self.withdrawer.text().strip()
         }

@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import *
-from security.auth_service import AuthService
+from security.auth_service import AuthService, BlockedUserError, WarnAttemptsError
 
 class ChangePasswordDialog(QDialog):
-    def __init__(self, username=None, parent=None):
+    def __init__(self, username=None, parent=None, force_change=False):
         super().__init__(parent)
+        self.force_change = force_change
         self.confirm_input = None
         self.new_pass_input = None
         self.old_pass_input = None
@@ -11,6 +12,9 @@ class ChangePasswordDialog(QDialog):
         self.username = username
         self.auth = AuthService()
         self.init_ui()
+        if force_change:
+            self.setWindowTitle("Обязательная смена пароля")
+            # Можно добавить поясняющий текст
 
     def init_ui(self):
         self.setWindowTitle("Смена пароля")
@@ -72,7 +76,14 @@ class ChangePasswordDialog(QDialog):
             QMessageBox.warning(self, "Ошибка", "Пароль должен быть не менее 6 символов")
             return
 
-        user = self.auth.authenticate(username, old_pass)
+        try:
+            user = self.auth.authenticate(username, old_pass)
+        except BlockedUserError as e:
+            QMessageBox.critical(self, "Доступ закрыт", str(e))
+            return
+        except WarnAttemptsError as e:
+            QMessageBox.warning(self, "Предупреждение", str(e))
+            return
         if not user:
             QMessageBox.critical(self, "Ошибка", "Неверный текущий пароль или логин")
             return

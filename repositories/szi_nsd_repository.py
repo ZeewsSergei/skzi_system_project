@@ -1,4 +1,6 @@
 from db.db_manager import DatabaseManager
+from core.enums import SkziStatus
+
 
 class SziNsdRepository:
     def __init__(self):
@@ -76,7 +78,7 @@ class SziNsdRepository:
             data.get("szi_nsd_id"),
             data.get("install_date"),
             data.get("installer_fio"),
-            data.get("status", "ACTIVE")
+            data.get("status", SkziStatus.ACTIVE)
         )
         self.db.execute_query(query, params)
         self.db.commit()
@@ -117,13 +119,22 @@ class SziNsdRepository:
             withdrawer_fio = ?
         WHERE id = ?
         """
-        self.db.execute_query(query, (withdrawal_date, destruction_act_num, withdrawer_fio, installation_id))
+        self.db.execute_query(
+            query, (withdrawal_date, destruction_act_num, withdrawer_fio, installation_id)
+        )
         self.db.commit()
 
     def mass_mark_destroyed(self, ids, withdrawal_date, destruction_act_num, withdrawer_fio):
         """
         Массовое уничтожение записей.
         """
+        # GUARD: пустой список → IN () — синтаксическая ошибка SQLite
+        if not ids:
+            return
+
+        # Дополнительная защита: все элементы должны быть целыми числами
+        ids = [int(i) for i in ids]
+
         placeholders = ','.join(['?' for _ in ids])
         query = f"""
         UPDATE szi_nsd_installations

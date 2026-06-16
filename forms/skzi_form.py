@@ -5,9 +5,13 @@ from services.employee_service import EmployeeService
 from services.arm_service import ArmService
 from services.dictionary_service import DictionaryService
 
+
 class SkziForm(QDialog):
     def __init__(self, user, parent=None, record_id=None):
         super().__init__(parent)
+        self.from_who = None
+        self.skzi_inst = None
+        self.expiry_date = None
         self.user = user
         self.record_id = record_id
         self.skzi_service = SkziService()
@@ -119,25 +123,10 @@ class SkziForm(QDialog):
         self.address.setEditable(True)
         grid.addWidget(self.address, 13, 1, 1, 3)
 
-        grid.addWidget(QLabel("ОС:"), 14, 0)
-        self.os_version = QComboBox()
-        self.os_version.setEditable(True)
-        grid.addWidget(self.os_version, 14, 1)
-
-        grid.addWidget(QLabel("Антивирус:"), 14, 2)
-        self.antivirus = QComboBox()
-        self.antivirus.setEditable(True)
-        grid.addWidget(self.antivirus, 14, 3)
-
-        grid.addWidget(QLabel("СЗИ от НСД:"), 15, 0)
-        self.szi_nsd = QComboBox()
-        self.szi_nsd.setEditable(True)
-        grid.addWidget(self.szi_nsd, 15, 1)
-
-        grid.addWidget(QLabel("Кто установил:"), 15, 2)
+        grid.addWidget(QLabel("Кто установил:"), 14, 2)
         self.installer = QLineEdit()
         self.installer.setText(self.user['username'])
-        grid.addWidget(self.installer, 15, 3)
+        grid.addWidget(self.installer, 14, 3)
 
         layout.addLayout(grid)
 
@@ -185,27 +174,6 @@ class SkziForm(QDialog):
         for item in arm_types:
             self.arm_type.addItem(item['name'], item['id'])
 
-        # Версии ОС
-        os_versions = self.dict_service.get_os_versions()
-        self.os_version.clear()
-        self.os_version.addItem("", None)
-        for item in os_versions:
-            self.os_version.addItem(item['name'], item['id'])
-
-        # Антивирусы
-        antiviruses = self.dict_service.get_antiviruses()
-        self.antivirus.clear()
-        self.antivirus.addItem("", None)
-        for item in antiviruses:
-            self.antivirus.addItem(item['name'], item['id'])
-
-        # СЗИ от НСД
-        szi_nsd_names = self.dict_service.get_szi_nsd_names()
-        self.szi_nsd.clear()
-        self.szi_nsd.addItem("", None)
-        for item in szi_nsd_names:
-            self.szi_nsd.addItem(item['name'], item['id'])
-
         # Адреса
         addresses = self.dict_service.get_addresses()
         self.address.clear()
@@ -217,60 +185,73 @@ class SkziForm(QDialog):
         record = self.skzi_service.get_skzi_by_id(self.record_id)
         if not record:
             return
-        index = self.emp_combo.findData(record['employee_id'])
-        if index >= 0:
-            self.emp_combo.setCurrentIndex(index)
 
-        # skzi_name
+        # Сотрудник
+        emp_id = record.get('employee_id')
+        if emp_id:
+            index = self.emp_combo.findData(emp_id)
+            if index >= 0:
+                self.emp_combo.setCurrentIndex(index)
+
+        # СКЗИ
         skzi_name_id = record.get('skzi_name_id')
         if skzi_name_id:
             idx = self.skzi_name.findData(skzi_name_id)
             if idx >= 0:
                 self.skzi_name.setCurrentIndex(idx)
+        else:
+            self.skzi_name.setCurrentText(record.get('skzi_name', ''))
 
-        self.skzi_serial.setText(record['skzi_number'] or "")
-        self.skzi_inst.setText(record['skzi_instance_number'] or "")
-        self.cert_num.setText(record['cert_number'] or "")
-        self.token_type.setCurrentText(record['media_type'] or "")
-        self.token_num.setText(record['media_number'] or "")
-        self.from_who.setCurrentText(record['received_from'] or "")
-        self.letter_num.setText(record['receive_letter_num'] or "")
+        self.skzi_serial.setText(record.get('skzi_number', ''))
+        self.skzi_inst.setText(record.get('skzi_instance_number', ''))
+        self.cert_num.setText(record.get('cert_number', ''))
 
-        if record['receive_date']:
-            self.receive_date.setDate(QDate.fromString(record['receive_date'], "dd.MM.yyyy"))
-        if record['install_date']:
-            self.install_date.setDate(QDate.fromString(record['install_date'], "dd.MM.yyyy"))
-        if record['expiry_date']:
-            self.expiry_date.setDate(QDate.fromString(record['expiry_date'], "dd.MM.yyyy"))
+        # Тип носителя
+        media_type_id = record.get('media_type_id')
+        if media_type_id:
+            idx = self.token_type.findData(media_type_id)
+            if idx >= 0:
+                self.token_type.setCurrentIndex(idx)
+        else:
+            self.token_type.setCurrentText(record.get('media_type', ''))
 
-        self.installer.setText(record['installer_fio'] or self.user['username'])
+        self.token_num.setText(record.get('media_number', ''))
+
+        # От кого получен
+        received_from_id = record.get('received_from_id')
+        if received_from_id:
+            idx = self.from_who.findData(received_from_id)
+            if idx >= 0:
+                self.from_who.setCurrentIndex(idx)
+        else:
+            self.from_who.setCurrentText(record.get('received_from', ''))
+
+        self.letter_num.setText(record.get('receive_letter_num', ''))
+
+        # Даты
+        receive_date = record.get('receive_date')
+        if receive_date:
+            self.receive_date.setDate(QDate.fromString(receive_date, "yyyy-MM-dd"))
+        install_date = record.get('install_date')
+        if install_date:
+            self.install_date.setDate(QDate.fromString(install_date, "yyyy-MM-dd"))
+        expiry_date = record.get('expiry_date')
+        if expiry_date:
+            self.expiry_date.setDate(QDate.fromString(expiry_date, "yyyy-MM-dd"))
+
+        self.installer.setText(record.get('installer_fio', self.user['username']))
 
         # АРМ
-        arm = self.arm_service.get_arm_by_id(record['arm_id'])
+        arm = self.arm_service.get_arm_by_id(record.get('arm_id'))
         if arm:
-            self.arm_name.setText(arm['arm_name'] or "")
-            self.cabinet.setText(arm['cabinet_number'] or "")
+            self.arm_name.setText(arm.get('arm_name', ''))
+            self.cabinet.setText(arm.get('cabinet_number', ''))
             arm_type_id = arm.get('arm_type_id')
             if arm_type_id:
                 idx = self.arm_type.findData(arm_type_id)
                 if idx >= 0:
                     self.arm_type.setCurrentIndex(idx)
-            self.arm_serial.setText(arm['arm_serial'] or "")
-            os_version_id = arm.get('os_version_id')
-            if os_version_id:
-                idx = self.os_version.findData(os_version_id)
-                if idx >= 0:
-                    self.os_version.setCurrentIndex(idx)
-            antivirus_id = arm.get('antivirus_id')
-            if antivirus_id:
-                idx = self.antivirus.findData(antivirus_id)
-                if idx >= 0:
-                    self.antivirus.setCurrentIndex(idx)
-            szi_nsd_id = arm.get('szi_nsd_id')
-            if szi_nsd_id:
-                idx = self.szi_nsd.findData(szi_nsd_id)
-                if idx >= 0:
-                    self.szi_nsd.setCurrentIndex(idx)
+            self.arm_serial.setText(arm.get('arm_serial', ''))
             address_id = arm.get('install_address_id')
             if address_id:
                 idx = self.address.findData(address_id)
@@ -295,9 +276,6 @@ class SkziForm(QDialog):
             media_type_text = self.token_type.currentText().strip()
             received_from_text = self.from_who.currentText().strip()
             arm_type_text = self.arm_type.currentText().strip()
-            os_version_text = self.os_version.currentText().strip()
-            antivirus_text = self.antivirus.currentText().strip()
-            szi_nsd_text = self.szi_nsd.currentText().strip()
             address_text = self.address.currentText().strip()
 
             data = {
@@ -310,17 +288,14 @@ class SkziForm(QDialog):
                 'cert_number': self.cert_num.text() or None,
                 'received_from': received_from_text,
                 'receive_letter_num': self.letter_num.text(),
-                'receive_date': self.receive_date.date().toString("dd.MM.yyyy"),
-                'install_date': self.install_date.date().toString("dd.MM.yyyy"),
-                'expiry_date': self.expiry_date.date().toString("dd.MM.yyyy"),
+                'receive_date': self.receive_date.date().toString("yyyy-MM-dd"),
+                'install_date': self.install_date.date().toString("yyyy-MM-dd"),
+                'expiry_date': self.expiry_date.date().toString("yyyy-MM-dd"),
                 'installer_fio': self.installer.text(),
                 'knowledge_check': "не проводилась",
                 'arm_name': self.arm_name.text(),
                 'arm_serial': self.arm_serial.text(),
                 'arm_type': arm_type_text,
-                'os_version': os_version_text,
-                'antivirus': antivirus_text,
-                'szi_nsd': szi_nsd_text,
                 'cabinet_number': self.cabinet.text(),
                 'install_address': address_text
             }

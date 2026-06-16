@@ -1,21 +1,33 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QDate
 from services.skzi_service import SkziService
+from services.vipnet_service import VipNetService
+from signals.app_signals import app_signals
+
 
 class DestructionDialog(QDialog):
     def __init__(self, user, parent=None):
         super().__init__(parent)
         self.user = user
         self.skzi_service = SkziService()
-        self.setWindowTitle("Регистрация уничтожения СКЗИ")
-        self.setMinimumWidth(400)
+        self.vipnet_service = VipNetService()
+        self.current_type = 'skzi'
+        self.setWindowTitle("Регистрация уничтожения")
+        self.setMinimumWidth(500)
         self.init_ui()
         self.load_active_skzi()
 
     def init_ui(self):
         layout = QVBoxLayout(self)
 
-        layout.addWidget(QLabel("Выберите запись СКЗИ для уничтожения:"))
+        layout.addWidget(QLabel("Тип СКЗИ:"))
+        self.type_combo = QComboBox()
+        self.type_combo.addItem("КриптоПро CSP 5.0 R3", 'skzi')
+        self.type_combo.addItem("ViPNet Client", 'vipnet')
+        self.type_combo.currentIndexChanged.connect(self.on_type_changed)
+        layout.addWidget(self.type_combo)
+
+        layout.addWidget(QLabel("Выберите запись:"))
         self.skzi_combo = QComboBox()
         layout.addWidget(self.skzi_combo)
 
@@ -43,6 +55,14 @@ class DestructionDialog(QDialog):
         btn_layout.addWidget(cancel_btn)
         layout.addLayout(btn_layout)
 
+    def on_type_changed(self):
+        new_type = self.type_combo.currentData()
+        self.current_type = new_type
+        if new_type == 'skzi':
+            self.load_active_skzi()
+        else:
+            self.load_active_vipnet()
+
     def load_active_skzi(self):
         active = self.skzi_service.get_all_active()
         self.skzi_combo.clear()
@@ -50,19 +70,29 @@ class DestructionDialog(QDialog):
             text = f"{r['fio']} – {r['skzi_name']} (№ {r['skzi_number']})"
             self.skzi_combo.addItem(text, r['id'])
 
+    def load_active_vipnet(self):
+        active = self.vipnet_service.get_all_active()
+        self.skzi_combo.clear()
+        for r in active:
+            text = f"{r['fio']} – {r['skzi_name']} (Узел: {r['skzi_account']})"
+            self.skzi_combo.addItem(text, r['id'])
+
     def save(self):
         if self.skzi_combo.count() == 0:
-            QMessageBox.warning(self, "Ошибка", "Нет активных записей СКЗИ")
+            QMessageBox.warning(self, "Ошибка", "Нет активных записей для выбранного типа")
             return
-        skzi_id = self.skzi_combo.currentData()
-        date = self.date_edit.date().toString("dd.MM.yyyy")
+        record_id = self.skzi_combo.currentData()
+        date = self.date_edit.date().toString("yyyy-MM-dd")
         act = self.act_num.text().strip()
         withdrawer = self.withdrawer.text().strip()
         if not act:
             QMessageBox.warning(self, "Ошибка", "Введите номер акта уничтожения")
             return
         try:
-            self.skzi_service.mark_destroyed(skzi_id, date, act, withdrawer, self.user['username'])
+            if self.current_type == 'skzi':
+                self.skzi_service.mark_destroyed(record_id, date, act, withdrawer, self.user['username'])
+            else:
+                self.vipnet_service.mark_destroyed(record_id, date, act, withdrawer, self.user['username'])
             QMessageBox.information(self, "Успех", "Запись об уничтожении добавлена")
             self.accept()
         except Exception as e:

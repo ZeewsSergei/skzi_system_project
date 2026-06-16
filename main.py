@@ -2,11 +2,13 @@ import sys
 import os
 import ctypes
 import traceback
-from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtWidgets import QApplication, QMessageBox, QDialog
 from PyQt6.QtGui import QIcon
 from login_window import LoginWindow
 from database_init import create_database
 from utils.path_helper import get_app_root, get_db_path
+from db.db_manager import DatabaseManager
+from forms.first_run_dialog import FirstRunDialog
 
 MODERN_STYLE = """
 QMainWindow, QDialog { 
@@ -106,11 +108,12 @@ def main():
             QMessageBox.critical(None, "Ошибка БД", f"Не удалось инициализировать базу данных:\n{e}\n\nПриложение может работать некорректно.")
         except:
             pass
+        sys.exit(1)
 
     app = QApplication(sys.argv)
 
     try:
-        myappid = 'kolesov.skzi.registry.v4.1'
+        myappid = 'kolesov.skzi.registry.v6.0'
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except Exception:
         pass
@@ -122,6 +125,19 @@ def main():
     app.setStyleSheet(MODERN_STYLE)
     app.setQuitOnLastWindowClosed(True)
 
+    # Проверка наличия пользователей
+    db_manager = DatabaseManager()
+    cursor = db_manager.execute_query("SELECT COUNT(*) as cnt FROM users")
+    row = cursor.fetchone()
+    has_users = row and row['cnt'] > 0
+
+    if not has_users:
+        # Первый запуск – создаём администратора
+        first_run = FirstRunDialog()
+        if first_run.exec() != QDialog.DialogCode.Accepted:
+            sys.exit(0)  # Пользователь закрыл окно – выходим
+
+    # Запуск окна авторизации
     login = LoginWindow()
     if icon_path:
         login.setWindowIcon(QIcon(icon_path))

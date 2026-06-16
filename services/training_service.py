@@ -32,3 +32,19 @@ class TrainingService:
             )
         app_signals.training_changed.emit()
         app_signals.employee_changed.emit()
+
+    def get_training_by_id(self, training_id):
+        return self.repo.get_by_id(training_id)
+
+    def delete_training(self, training_id, username):
+        self.repo.delete(training_id)
+        self.audit.log("DELETE", "training_logs", training_id, username, "Удалена запись об обучении")
+        app_signals.training_changed.emit()
+
+    def update_training(self, training_id, employee_id, training_date, result, position, department, username):
+        old = self.repo.get_by_id(training_id)
+        self.repo.update(training_id, employee_id, training_date, result, position, department)
+        self.audit.log("UPDATE", "training_logs", training_id, username,
+                       new_value=f"сотрудник {employee_id}, дата {training_date}, результат {result}",
+                       old_value=str(dict(old)) if old else None)
+        app_signals.training_changed.emit()

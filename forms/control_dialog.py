@@ -1,7 +1,8 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QDate
-from services.control_service import ControlService, register_control
+from services.control_service import ControlService
 from services.skzi_service import SkziService
+
 
 class ControlDialog(QDialog):
     def __init__(self, user, parent=None):
@@ -67,8 +68,12 @@ class ControlDialog(QDialog):
             QMessageBox.warning(self, "Ошибка", "Нет активных записей СКЗИ")
             return
         skzi_id = self.skzi_combo.currentData()
-        date = self.date_edit.date().toString("dd-MM-yyyy")
-        conditions = "Условия соблюдены" if self.conditions_check.isChecked() else "Условия не соблюдены"
+
+        # ИСПРАВЛЕНО: формат yyyy-MM-dd (ISO) вместо dd-MM-yyyy
+        check_date = self.date_edit.date().toString("yyyy-MM-dd")
+
+        conditions = "Условия соблюдены" if self.conditions_check.isChecked() \
+            else "Условия не соблюдены"
         inspector = self.inspector.text().strip()
         notes = self.notes.text().strip()
 
@@ -77,7 +82,10 @@ class ControlDialog(QDialog):
             return
 
         try:
-            register_control(skzi_id, date, conditions, inspector, notes, self.user['username'])
+            self.control_service.register_control(
+                skzi_id, check_date, conditions, inspector,
+                notes, self.user['username']
+            )
             QMessageBox.information(self, "Успех", "Результат контроля сохранён")
             self.accept()
         except Exception as e:

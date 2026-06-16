@@ -22,3 +22,20 @@ class TrainingRepository:
         """, (employee_id, training_date, result, position, department))
         self.db.commit()
         return cursor.lastrowid
+
+    def get_by_id(self, training_id):
+        cursor = self.db.execute_query("SELECT * FROM training_logs WHERE id = ?", (training_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+    def delete(self, training_id):
+        self.db.execute_query("DELETE FROM training_logs WHERE id = ?", (training_id,))
+        self.db.commit()
+
+    def update(self, training_id, employee_id, training_date, result, position, department):
+        self.db.execute_query("""
+            UPDATE training_logs
+            SET employee_id = ?, training_date = ?, result = ?, position = ?, department = ?
+            WHERE id = ?
+        """, (employee_id, training_date, result, position, department, training_id))
+        self.db.commit()

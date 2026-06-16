@@ -14,6 +14,11 @@ class DepartmentRepository:
         row = cursor.fetchone()
         return dict(row) if row else None
 
+    def get_by_name(self, name):
+        cursor = self.db.execute_query("SELECT id, name FROM departments WHERE name = ?", (name,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
     def add(self, name):
         cursor = self.db.execute_query(
             "INSERT INTO departments (name) VALUES (?)", (name,)

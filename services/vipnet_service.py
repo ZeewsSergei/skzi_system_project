@@ -1,4 +1,5 @@
 from repositories.vipnet_repository import VipNetRepository
+from core.enums import SkziStatus
 from services.arm_service import ArmService
 from services.dictionary_service import DictionaryService
 from services.audit_service import AuditService
@@ -44,7 +45,7 @@ class VipNetService:
             'receive_letter_num': data.get('receive_letter_num'),
             'install_date': data.get('install_date'),
             'installer_fio': data.get('installer_fio'),
-            'status': 'ACTIVE'
+            'status': SkziStatus.ACTIVE
         }
         self.repo.add(installation_data)
 
@@ -105,6 +106,9 @@ class VipNetService:
         app_signals.employee_changed.emit()
 
     def mass_mark_destroyed(self, ids, date, act, withdrawer, username):
+        # GUARD: нечего уничтожать — выходим без обращения к БД
+        if not ids:
+            return
         self.repo.mass_mark_destroyed(ids, date, act, withdrawer)
         for _id in ids:
             self.audit.log("DESTROY", "vipnet_installations", _id, username,

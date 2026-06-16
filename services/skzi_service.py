@@ -1,24 +1,23 @@
 from repositories.skzi_repository import SkziRepository
+from core.enums import SkziStatus
 from services.arm_service import ArmService
 from services.dictionary_service import DictionaryService
 from services.audit_service import AuditService
 from signals.app_signals import app_signals
+from db.db_manager import DatabaseManager
 
 class SkziService:
     def __init__(self):
+        self.db = DatabaseManager()
         self.repo = SkziRepository()
         self.arm_service = ArmService()
         self.dict_service = DictionaryService()
         self.audit = AuditService()
 
     def register_skzi(self, data, username):
-        print(f"=== register_skzi ===")
-        print(f"Тип data: {type(data)}")
-        print(f"Содержимое data: {data}")
         if not isinstance(data, dict):
             raise TypeError(f"register_skzi ожидает словарь, получен {type(data)}: {data}")
 
-        # Преобразуем текстовые значения в ID справочников
         skzi_name_id = self.dict_service.get_or_create_skzi_name(data.get('skzi_name')) if data.get('skzi_name') else None
         media_type_id = self.dict_service.get_or_create_media_type(data.get('media_type')) if data.get('media_type') else None
         received_from_id = self.dict_service.get_or_create_received_from(data.get('received_from')) if data.get('received_from') else None
@@ -51,7 +50,7 @@ class SkziService:
             'expiry_date': data.get('expiry_date'),
             'installer_fio': data.get('installer_fio'),
             'knowledge_check': data.get('knowledge_check', 'не проводилась'),
-            'status': 'ACTIVE'
+            'status': SkziStatus.ACTIVE
         }
         self.repo.add_skzi(registry_data)
         self.audit.log("CREATE", "skzi_registry", registry_data.get('skzi_number'), username,
@@ -59,8 +58,6 @@ class SkziService:
         app_signals.skzi_changed.emit()
 
     def update_skzi(self, skzi_id, data, username):
-        print(f"=== update_skzi ===")
-        print(f"skzi_id: {skzi_id}, data: {data}")
         if not isinstance(data, dict):
             raise TypeError(f"update_skzi ожидает словарь, получен {type(data)}: {data}")
 
@@ -114,13 +111,46 @@ class SkziService:
         return self.repo.get_by_id(skzi_id)
 
     def get_all_active(self):
-        return self.repo.get_all_active()
-
-    def get_all_active_filtered(self, filters):
-        return self.repo.get_all_active_filtered(filters)
+        query = """
+        SELECT r.id, e.fio, d.name as department, s.name as skzi_name,
+               r.skzi_number, a.cabinet_number,
+               r.expiry_date, r.knowledge_check, r.status,
+               a.arm_serial, at.name as arm_type,
+               mt.name as media_type, r.media_number,
+               r.install_date
+        FROM skzi_registry r
+        LEFT JOIN employees e ON r.employee_id = e.id
+        LEFT JOIN departments d ON e.department_id = d.id
+        LEFT JOIN skzi_names s ON r.skzi_name_id = s.id
+        LEFT JOIN arm a ON r.arm_id = a.id
+        LEFT JOIN arm_types at ON a.arm_type_id = at.id
+        LEFT JOIN media_types mt ON r.media_type_id = mt.id
+        WHERE r.status = 'ACTIVE'
+        """
+        cursor = self.db.execute_query(query)
+        return [dict(row) for row in cursor.fetchall()]
 
     def get_destroyed(self):
-        return self.repo.get_destroyed()
+        query = """
+                SELECT r.id, e.fio, d.name as department, s.name as skzi_name,
+                       r.skzi_number, r.withdrawal_date, r.destruction_act_num, r.withdrawer_fio
+                FROM skzi_registry r
+                LEFT JOIN employees e ON r.employee_id = e.id
+                LEFT JOIN departments d ON e.department_id = d.id
+                LEFT JOIN skzi_names s ON r.skzi_name_id = s.id
+                WHERE r.status = 'DESTROYED'
+                UNION ALL
+                SELECT v.id, e.fio, d.name as department, sn.name as skzi_name,
+                       v.skzi_account as skzi_number, v.withdrawal_date, v.destruction_act_num, v.withdrawer_fio
+                FROM vipnet_installations v
+                LEFT JOIN employees e ON v.employee_id = e.id
+                LEFT JOIN departments d ON e.department_id = d.id
+                LEFT JOIN skzi_names sn ON v.skzi_name_id = sn.id
+                WHERE v.status = 'DESTROYED'
+                ORDER BY withdrawal_date DESC
+                """
+        cursor = self.db.execute_query(query)
+        return [dict(row) for row in cursor.fetchall()]
 
     def get_vipnet_data(self):
         return self.repo.get_vipnet_data()
@@ -136,6 +166,9 @@ class SkziService:
         app_signals.skzi_changed.emit()
 
     def mass_mark_destroyed(self, skzi_ids, date, act, withdrawer, username):
+        # GUARD: нечего уничтожать — выходим без обращения к БД
+        if not skzi_ids:
+            return
         self.repo.mass_mark_destroyed(skzi_ids, date, act, withdrawer)
         for skzi_id in skzi_ids:
             self.audit.log("DESTROY", "skzi_registry", skzi_id, username,

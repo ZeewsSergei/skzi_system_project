@@ -1,3 +1,4 @@
+# forms/training_dialog.py
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import QDate
 from services.training_service import TrainingService
@@ -5,23 +6,21 @@ from services.employee_service import EmployeeService
 from services.department_service import DepartmentService
 
 class TrainingDialog(QDialog):
-    def __init__(self, user, parent=None):
+    def __init__(self, user, parent=None, record_id=None):
         super().__init__(parent)
-        self.result_combo = None
-        self.date_edit = None
-        self.department_combo = None
-        self.position_combo = None
-        self.emp_combo = None
         self.user = user
+        self.record_id = record_id
         self.training_service = TrainingService()
         self.emp_service = EmployeeService()
         self.dept_service = DepartmentService()
-        self.setWindowTitle("Регистрация обучения")
+        self.setWindowTitle("Редактирование обучения" if record_id else "Регистрация обучения")
         self.setMinimumWidth(450)
         self.init_ui()
         self.load_employees()
         self.load_positions()
         self.load_departments()
+        if record_id:
+            self.load_record()
 
     def init_ui(self):
         layout = QVBoxLayout(self)
@@ -96,6 +95,18 @@ class TrainingDialog(QDialog):
         self.department_combo.clear()
         self.department_combo.addItems([d['name'] for d in depts])
 
+    def load_record(self):
+        training = self.training_service.get_training_by_id(self.record_id)
+        if not training:
+            return
+        idx = self.emp_combo.findData(training['employee_id'])
+        if idx >= 0:
+            self.emp_combo.setCurrentIndex(idx)
+        self.date_edit.setDate(QDate.fromString(training['training_date'], "dd.MM.yyyy"))
+        self.result_combo.setCurrentText(training['result'])
+        self.position_combo.setCurrentText(training['position'])
+        self.department_combo.setCurrentText(training['department'])
+
     def save(self):
         emp_id = self.emp_combo.currentData()
         if emp_id is None:
@@ -106,8 +117,14 @@ class TrainingDialog(QDialog):
         position = self.position_combo.currentText().strip()
         department = self.department_combo.currentText().strip()
         try:
-            self.training_service.register_training(emp_id, date, result, position, department, self.user['username'])
-            QMessageBox.information(self, "Успех", "Результат обучения сохранён")
+            if self.record_id:
+                self.training_service.update_training(
+                    self.record_id, emp_id, date, result, position, department, self.user['username']
+                )
+                QMessageBox.information(self, "Успех", "Запись обновлена")
+            else:
+                self.training_service.register_training(emp_id, date, result, position, department, self.user['username'])
+                QMessageBox.information(self, "Успех", "Результат обучения сохранён")
             self.accept()
         except Exception as e:
             QMessageBox.critical(self, "Ошибка", str(e))

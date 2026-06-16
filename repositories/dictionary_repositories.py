@@ -1,33 +1,54 @@
-from .base_repository import BaseRepository
+# repositories/dictionary_repositories.py
+"""
+УСТАРЕВШИЙ МОДУЛЬ.
+Оставлен для совместимости со сборкой PyInstaller.
 
-class SkziNameRepository(BaseRepository):
-    def __init__(self):
-        super().__init__('skzi_names')
+Реальные репозитории справочников находятся в отдельных файлах:
+    repositories/skzi_name_repository.py
+    repositories/media_type_repository.py
+    repositories/arm_type_repository.py
+    repositories/address_repository.py
+    repositories/os_version_repository.py
+    repositories/szi_nsd_name_repository.py
+    repositories/antivirus_repository.py
+    repositories/received_from_repository.py
 
-class MediaTypeRepository(BaseRepository):
-    def __init__(self):
-        super().__init__('media_types')
+Этот файл является реэкспортом из перечисленных модулей,
+чтобы старый код `from repositories.dictionary_repositories import X`
+продолжал работать без изменений.
 
-class ArmTypeRepository(BaseRepository):
-    def __init__(self):
-        super().__init__('arm_types')
+ВНИМАНИЕ: BaseRepository.get_by_name() возвращает только id (int),
+тогда как отдельные репозитории возвращают dict {'id': ..., 'name': ...}.
+DictionaryService использует отдельные репозитории — не используйте
+этот файл в новом коде.
+"""
 
-class AddressRepository(BaseRepository):
-    def __init__(self):
-        super().__init__('addresses')
+import warnings
 
-class OsVersionRepository(BaseRepository):
-    def __init__(self):
-        super().__init__('os_versions')
+warnings.warn(
+    "dictionary_repositories устарел. "
+    "Импортируйте классы из отдельных файлов репозиториев.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
-class SziNsdNameRepository(BaseRepository):
-    def __init__(self):
-        super().__init__('szi_nsd_names')
+# Реэкспортируем из реальных репозиториев
+from repositories.skzi_name_repository import SkziNameRepository
+from repositories.media_type_repository import MediaTypeRepository
+from repositories.arm_type_repository import ArmTypeRepository
+from repositories.address_repository import AddressRepository
+from repositories.os_version_repository import OsVersionRepository
+from repositories.szi_nsd_name_repository import SziNsdNameRepository
+from repositories.antivirus_repository import AntivirusRepository
+from repositories.received_from_repository import ReceivedFromRepository
 
-class AntivirusRepository(BaseRepository):
-    def __init__(self):
-        super().__init__('antiviruses')
-
-class ReceivedFromRepository(BaseRepository):
-    def __init__(self):
-        super().__init__('received_from')
+__all__ = [
+    'SkziNameRepository',
+    'MediaTypeRepository',
+    'ArmTypeRepository',
+    'AddressRepository',
+    'OsVersionRepository',
+    'SziNsdNameRepository',
+    'AntivirusRepository',
+    'ReceivedFromRepository',
+]

@@ -46,7 +46,7 @@ class SziNsdForm(QDialog):
         grid.addWidget(QLabel("Наименование СЗИ от НСД:"), row, 0)
         self.szi_nsd = QComboBox()
         self.szi_nsd.setEditable(True)
-        self.szi_nsd.addItems(["Dallas Lock", "Secret Net"])
+        # Не добавляем хардкодные значения — список заполняется из справочника в load_dictionaries()
         grid.addWidget(self.szi_nsd, row, 1, 1, 2)
         row += 1
 
@@ -143,7 +143,11 @@ class SziNsdForm(QDialog):
                 self.szi_nsd.setCurrentIndex(idx)
 
         if record['install_date']:
-            self.install_date.setDate(QDate.fromString(record['install_date'], "dd.MM.yyyy"))
+            _d = QDate.fromString(record['install_date'], "dd.MM.yyyy")
+            if not _d.isValid():
+                _d = QDate.fromString(record['install_date'], "yyyy-MM-dd")
+            if _d.isValid():
+                self.install_date.setDate(_d)
         self.installer.setText(record['installer_fio'] or self.user['username'])
 
         # Загружаем данные АРМ

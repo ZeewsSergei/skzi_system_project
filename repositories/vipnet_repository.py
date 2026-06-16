@@ -1,4 +1,6 @@
 from db.db_manager import DatabaseManager
+from core.enums import SkziStatus
+
 
 class VipNetRepository:
     def __init__(self):
@@ -63,15 +65,9 @@ class VipNetRepository:
         """
         Добавляет новую запись в vipnet_installations.
         Ожидает словарь с ключами:
-        - employee_id
-        - arm_id
-        - skzi_name_id
-        - skzi_account
-        - received_from_id
-        - receive_letter_num
-        - install_date
-        - installer_fio
-        - status (по умолчанию 'ACTIVE')
+        - employee_id, arm_id, skzi_name_id, skzi_account,
+        - received_from_id, receive_letter_num, install_date,
+        - installer_fio, status (по умолчанию 'ACTIVE')
         """
         query = """
         INSERT INTO vipnet_installations (
@@ -88,7 +84,7 @@ class VipNetRepository:
             data.get("receive_letter_num"),
             data.get("install_date"),
             data.get("installer_fio"),
-            data.get("status", "ACTIVE")
+            data.get("status", SkziStatus.ACTIVE)
         )
         self.db.execute_query(query, params)
         self.db.commit()
@@ -135,13 +131,22 @@ class VipNetRepository:
             withdrawer_fio = ?
         WHERE id = ?
         """
-        self.db.execute_query(query, (withdrawal_date, destruction_act_num, withdrawer_fio, installation_id))
+        self.db.execute_query(
+            query, (withdrawal_date, destruction_act_num, withdrawer_fio, installation_id)
+        )
         self.db.commit()
 
     def mass_mark_destroyed(self, ids, withdrawal_date, destruction_act_num, withdrawer_fio):
         """
         Массовое уничтожение записей.
         """
+        # GUARD: пустой список → IN () — синтаксическая ошибка SQLite
+        if not ids:
+            return
+
+        # Дополнительная защита: все элементы должны быть целыми числами
+        ids = [int(i) for i in ids]
+
         placeholders = ','.join(['?' for _ in ids])
         query = f"""
         UPDATE vipnet_installations
